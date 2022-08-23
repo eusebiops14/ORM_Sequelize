@@ -1,0 +1,99 @@
+
+-- Instalando Bibliotecas com npm
+    -npm install --save-dev nodemon
+    -npm install mysql2
+    -npm install sequelize  
+    -npm install sequelize-cli (recursos de linha de comando)- Comand Line Interface CLI
+    -npm install path
+-- Criando base do Projeto
+    -npx sequelize-cli init (cria base para o projeto com banco de dados sequelize)
+    - referencias: https://sequelize.org/docs/v6/other-topics/migrations/
+        -criar arquivo .sequelizerc e colocar na pasta raiz para resolver o caminho das pastas usadas pelo sequelize quando o arquivo dentro da pasta
+        config>config.json não estiver no diretório principal do projeto. Para isso, usamos a library 'path'
+        - No arquivo config.json, devemos incluir o nome do bando de dados e também a senha para acesso ao BD.
+
+    -curso alura: https://www.alura.com.br/curso-online-modelagem-banco-dados-entidades-relacionamentos-atributos
+    -Criar Model pelo terminal do projeto:
+        - npx sequelize-cli model:create --name Pessoas --attributes nome:string,ativo:boolean,email:string,role:string
+    -Migração em SQL - permite retornar a estados anteriores do código (parecido com versionamento do git)
+-- Plural x Singular
+    - Quando usamos ORMs (como o Sequelize) ou outros frameworks (como o Rails se estiver trabalhando com a linguagem
+     Ruby) para trabalhar com os bancos de dados, o comportamento padrão dessas ferramentas é “pluralizar” automaticamente
+      todos os nomes de tabelas. Ou seja, quando criamos a tabela Person (Pessoa em inglês) através do Sequelize, ele vai
+       se conectar ao banco e criar a tabela com o nome de People (Pessoas em inglês). Isso vale para qualquer nome: Name
+    (Nome) se torna Names (Nomes) e por aí vai.
+    - Quando se trabalha com nomes em inglês isso não costuma ser um problema em si, pois a pessoa não precisa se preocupar em avisar ao Sequelize “olha, a tabela que eu chamei de Person você procura no banco como People, ok?”; o próprio ORM já faz essa conversão e sabe exatamente como transformar palavras em inglês do singular para o plural e vice-versa
+    
+    -sequelize.define('User', {
+          // ... (attributes)
+    }, {
+          freezeTableName: true
+    });
+
+    -sequelize.define('User', {
+        // ... (attributes)
+    }, {
+        tableName: 'Employees'
+    });
+
+--RODANDO MIGRAÇÕES 
+    -No terminal: npx sequelize-cli db:migrate - realiza alteracoes rastreaveis no banco de dados
+    - Para desfazer um comando no sequelize:
+        - npx sequelize-cli db:migrate:undo (dezfaz a ultima migracao feita no BD)
+        - Desfazer tudo : npx sequelize db:migrate:undo:all
+--Arquivos Seed
+    - npx sequelize-cli seed:generate --name demo-pessoa;
+    - npx sequelize-cli db:seed:all
+
+
+3) CONTROLADORES E ROTAS  
+    -Padräo de arquitetura MVC (Model View Controller);
+
+4) CRUD com sequelize
+
+5) RELAÇÕES
+    -Sempre criar primeiro as tabelas que nao possuem chave estrangeira FK;
+    - Criando mais tabelas:
+        - npx sequelize-cli model:create --name Turmas --attributes data_inicio:dateonly
+        - npx sequelize-cli model:create --name Matriculas --attributes status:string
+    
+    -POPULANDO TABELAS : npx sequelize-cli seed:generate --name demo-nivel
+                         npx sequelize-cli db:seed:all
+
+
+CURSO 2 - ORM com NodeJS: avançando nas funcionalidades do sequelize 
+
+1.0) SOFT DELETE - EXCLUSÁO SUAVE
+    1.5)Soft Delete (Exclusão Suave) (https://sequelize.org/docs/v6/core-concepts/paranoid/)
+        - {paranoid: true} - incluir esse atributo no model da tabela onde desejamos criar o soft Delete
+        - Sequelize supports the concept of paranoid tables. A paranoid table is one that, when told to delete a record, it will not truly delete it. Instead, a special column called deletedAt will have its value set to the timestamp of that deletion request.
+            This means that paranoid tables perform a soft-deletion of records, instead of a hard-deletion.
+    1.6) Adicionar a coluna deletedAt a tabela Pessoas (ja existente):
+        - Via SQL: "ALTER TABLE Pessoas ADD COLUMN deletedAt datetime AFTER updatedAt;"
+        - Via Migrations: criar arquivo de migration adicionando a coluna, allowNull deve ser true;
+        - SQl vai mostrar tudo que tiver "NULL"na coluna deletedAt;
+    1.8) Restaurando Registros
+
+2.0) ESCOPO DE MODELO E VALIDACÕES
+    2.2) Escopos de Modelo 
+        - documentacao: https://sequelize.org/docs/v6/other-topics/scopes/
+        - Escopos são determinados nos Models (defaultScope);
+        - No caso do Sequelize, podemos determinar o escopo padrão (defaultScope)
+          que justamente define quais restrições e definições serão utilizadas na
+          query… por padrão. E além do escopo padrão podemos definir outros, enquanto
+          fizer sentido para a aplicação, e dar a cada escopo um nome que será usado
+          pelo JavaScript para identificá-lo.
+    
+    2.4) Outros Escopos
+        - Através da propriedade scopes: {} , podemos inserir quantos escopos forem
+          necessários dentro do nosso projeto.
+        - const todasAsPessoas = await database.Pessoas.scope('todos').findAll(); // scope criado no model pessoas
+
+    2.5) Validando dados
+        - Validando dados com SQL : CHECK
+            * CHECK (status in ('confirmado','cancelado'))   
+        - Validando dados com sequelize 
+            * documentacao: https://sequelize.org/docs/v6/core-concepts/validations-and-constraints/
+            * isEmail: true - incluir essas validações direto nos atributos do model
+        - Exemplo de validacao de e-mail no model pessoas;
+            
