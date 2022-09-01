@@ -16,14 +16,23 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       Pessoas.hasMany(models.Matriculas,{
-        foreignKey: 'estudante_Id'
+        foreignKey: 'estudante_Id',
+        scope:{ status: 'confirmado'},
+        as: 'aulasMatriculadas'
       })
 
     }
   }
   Pessoas.init({
-    nome: DataTypes.STRING,
-    ativo: DataTypes.BOOLEAN,
+    nome: {
+      type: DataTypes.STRING,
+      validate: {
+        funcaoValidadora: function(dado) {
+          if(dado.length < 3) throw new Error('Campo nome deve ter mais de 3 caracteres')
+        }
+      }
+    },
+      ativo: DataTypes.BOOLEAN,
     email: {
       type: DataTypes.STRING,
       validate: {
@@ -48,3 +57,9 @@ module.exports = (sequelize, DataTypes) => {
   });
   return Pessoas;
 };
+
+
+
+
+
+

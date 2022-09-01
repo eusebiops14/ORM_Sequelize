@@ -96,4 +96,83 @@ CURSO 2 - ORM com NodeJS: avançando nas funcionalidades do sequelize
             * documentacao: https://sequelize.org/docs/v6/core-concepts/validations-and-constraints/
             * isEmail: true - incluir essas validações direto nos atributos do model
         - Exemplo de validacao de e-mail no model pessoas;
-            
+    
+    2.7) Validação Customizada
+        -  validate: {
+                funcaoValidadora: function(dado) {
+                  if(dado.length < 3) throw new Error('Campo nome deve ter mais de 3 caracteres')
+                }
+              };
+        - Ver Model Pessoa para Exemplo
+        - é possivel criar uma funcao com JS dentro do model para validar um determinado dados
+        -Vale lembrar : constrains 
+            * São constraints em SQL:
+                NOT NULL - garante que não exista nenhum valor NULL na coluna;
+                UNIQUE - Garante que não existam valores iguais em uma coluna;
+                PRIMARY KEY - Identifica cada linha em uma tabela através de um valor único (junção de NOT NULL e UNIQUE);
+                FOREIGN KEY - Identifica um valor único em outra tabela como chave;
+                CHECK - Garante que todos os valores em uma coluna satisfazem uma condição específica;
+                DEFAULT - Determina um valor padrão caso nenhum valor seja informado;
+                INDEX - Para criar índices e facilitar o acesso a determinados conjuntos de dados.
+
+3.0) ESCOPO DE ASSOCIAÇÃO E OPERADORES
+    3.2) Escopos de Associação
+        - Documentação: https://sequelize.org/docs/v6/advanced-association-concepts/association-scopes/ 
+        - São definidos dentro do modelo na parte de associações;
+        - A partir desses escopos, o sequelize gera, automaticamente, alguns métodos que facilitam a execução de operações no BD.
+        - Esses métodos, criados pelo sequelize, recebem o nome de Mixins;
+        - Ver exemplo no models pessoas desse projeto;
+    3.3) Mixins
+        - São criados a partir das associações;
+        -um mixin fornece métodos que implementam um certo comportamento em objetos,
+         sem poder ser utilizado sozinho, mas sim para adicionar esse comportamento a outras classes.
+         No Sequelize, temos uma diferença entre escopos de modelo, que são aplicados em chamadas estáticas
+         ao modelo (como no exemplo que fizemos no vídeo, Pessoas.scope('todos').findAll()), e escopos de associação,
+         que são uma regra, ou um conjunto de atributos que são automaticamente aplicados em instâncias do modelo, como
+         em Pessoas.associate = function(models) {...}.
+         Escopos de associação se comportam da mesma forma que os escopos de modelo, no sentido que ambos aplicam palavras-chave
+         como WHERE em chamadas ao banco; mas os mixins são métodos que existem somente nas instâncias dos modelos: Pessoas.getPessoasMatriculadas,
+         Niveis.getNiveisPorTurma, etc.
+         A lista de métodos criados automaticamente com as instâncias de modelo são:
+         * addModel()
+         * addModels()
+         * countModels()
+         * createModel()
+         * getModels()
+         * hasModel()
+         * hasModels()
+         * removeModel()
+         * removeModels()
+         * setModels()
+        Lembrando que “Model” e “Models”, aqui, refere-se ao nome do modelo! Lembre-se também que o Sequelize cria os nomes automaticamente mas
+        não entende muito bem o singular e plural em português, mas você pode definir nomes personalizados para seus mixins,
+    
+    3.5) Usando Operadores 
+        - http://localhost:3000/turmas?data_inicial=2020-01-01&data_final=2020-03-01
+        - Tabela de operadores =, < , > , <= etc
+
+    3.7) Funções Agregadoras
+        -https://sequelize.org/docs/v6/core-concepts/model-querying-finders/
+        -Model Queryng - Finders;
+        - By default, the results of all finder methods are instances of the model class (as opposed to being just plain JavaScript objects).
+            This means that after the database returns the results, Sequelize automatically wraps everything in proper instance objects. 
+            In a few cases, when there are too many results, this wrapping can be inefficient. 
+            To disable this wrapping and receive a plain response instead, pass { raw: true } as an option to the finder method.
+        - findAndCountAll
+
+    3.8) Outros Agregadores
+        - https://sequelize.org/docs/v6/core-concepts/model-querying-basics/
+
+4.0) TRANSAÇÕES (Transactions Sequelize)
+    4.3)Usando Transações
+        -As transações servem para garantir a integridade dos dados em operações como esta que fizemos. 
+        Por exemplo, uma operação que acesse mais de uma tabela, acesse várias tabelas, ou que faça 
+        atualizações em várias linhas de uma tabela.
+        Se acontece qualquer erro nesse processo, qualquer erro de banco, e temos 
+        uma falha em qualquer parte dessa operação, nenhum dado é salvo, nenhum dado é atualizado no banco,
+        na realidade, e o banco volta para o ponto onde ele estava antes de tudo isso começar, antes de todas
+        as operações que passamos começarem.
+        - EXEMPLO no método cancelaPessoa dentro de PessoaController
+    
+5.0) REFATORANDO PROJETO COM SERVIÇOS
+    - Nova camada chamada "Serviços" entre o controlador e os modelos
